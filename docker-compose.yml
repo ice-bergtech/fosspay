@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:12.1-alpine
+    container_name: fosspay_db
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fosspay"]
+    networks:
+      - fosspay_local
+    environment:
+      POSTGRES_USER: fosspay
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: fosspay
+    volumes:
+      - data_fosspay_db:/var/lib/postgresql/data
+
+  web:
+    image: fosspay/fosspay
+    container_name: fossapy_web
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q --spider --proxy=off localhost:4000 || exit 1",
+        ]
+    restart: always
+    networks:
+      - caddy
+      - fosspay_local
+    ports:
+      - 5000:5000
+    build:
+          context: .
+          args:
+            - "UID=1000"
+            - "GID=1000"
+    volumes:
+      - ./config.ini.local:/fosspay/config.ini
+    environment:
+      DOMAIN: pleroma.bushi.moe
+      INSTANCE_NAME: PleroBushi
+      ADMIN_EMAIL: admin@bushi.moe
+      NOTIFY_EMAIL: notify@bushi.moe
+      DB_USER: pleroma
+      DB_PASS: "jkqSDf#5SDF@#wsdsaAS#"
+      DB_NAME: pleroma
+    depends_on:
+      - db
+    labels:
+      caddy: fosspay.DOMAIN_NAME
+      caddy.reverse_proxy: "{{upstreams 4000}}"
+
+volumes:
+  data_fosspay_db:
+
+networks:
+  fosspay_local:
+  caddy:
+    external: true
