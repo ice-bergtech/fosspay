@@ -38,14 +38,6 @@ services:
             - "GID=1000"
     volumes:
       - ./config.ini.local:/fosspay/config.ini
-    environment:
-      DOMAIN: pleroma.bushi.moe
-      INSTANCE_NAME: PleroBushi
-      ADMIN_EMAIL: admin@bushi.moe
-      NOTIFY_EMAIL: notify@bushi.moe
-      DB_USER: pleroma
-      DB_PASS: "jkqSDf#5SDF@#wsdsaAS#"
-      DB_NAME: pleroma
     depends_on:
       - db
     labels:
